@@ -1,4 +1,3 @@
 export default {
-  url: 'https://viacep.com.br/ws',
-  returnType: 'json',
+  url: 'https://apps.widenet.com.br/busca-cep/api/cep.json?code',
 };
