@@ -34,7 +34,7 @@ class SessionController {
 
     return res.json({
       user: { id, name, email },
-      token: jwt.sign({ userId: id }, authConfig.secret, {
+      token: jwt.sign({ id }, authConfig.secret, {
         expiresIn: authConfig.expiresIn,
       }),
     });
