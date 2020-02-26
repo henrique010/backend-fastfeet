@@ -14,6 +14,7 @@ class User extends Model {
         sequelize,
       }
     );
+    return this;
   }
 
   checkPassword(password) {
