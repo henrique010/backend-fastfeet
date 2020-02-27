@@ -51,6 +51,7 @@ class DeliverymanController {
     const schema = Yup.object().shape({
       name: Yup.string(),
       email: Yup.string().email(),
+      avatar_id: Yup.number(),
     });
 
     if (!(await schema.isValid(req.body))) {
@@ -75,9 +76,14 @@ class DeliverymanController {
       }
     }
 
-    const { id, name, email } = await deliveryman.update(req.body);
+    await deliveryman.update(req.body);
+    const { id, name, email, avatar } = await deliveryman.reload({
+      include: [
+        { model: File, as: 'avatar', attributes: ['id', 'path', 'url'] },
+      ],
+    });
 
-    return res.json({ id, name, email });
+    return res.json({ id, name, email, avatar });
   }
 
   async delete(req, res) {
