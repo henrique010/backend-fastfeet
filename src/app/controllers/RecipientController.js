@@ -46,7 +46,16 @@ class RecipientController {
       complement: complement || '',
     });
 
-    return res.json(recipient);
+    return res.json({
+      id: recipient.id,
+      name,
+      number,
+      street,
+      city,
+      state,
+      cep,
+      complement,
+    });
   }
 
   async update(req, res) {
