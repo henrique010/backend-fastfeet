@@ -3,6 +3,7 @@ import Package from '../models/Package';
 import Recipient from '../models/Recipient';
 import Deliveryman from '../models/Deliveryman';
 import File from '../models/File';
+import Mail from '../../lib/Mail';
 
 class PackageController {
   async index(req, res) {
@@ -65,6 +66,28 @@ class PackageController {
     }
 
     const pack = await Package.create(req.body);
+
+    const { recipient_id, deliveryman_id } = req.body;
+
+    const recipient = await Recipient.findByPk(recipient_id);
+    const deliveryman = await Deliveryman.findByPk(deliveryman_id);
+
+    await Mail.sendMail({
+      to: `${deliveryman.name} <${deliveryman.email}>`,
+      subject: 'Novo cadastro de encomenda',
+      template: 'notification',
+      context: {
+        deliveryman: deliveryman.name,
+        product: pack.product,
+        recipient: recipient.name,
+        cep: recipient.cep,
+        street: recipient.street,
+        number: recipient.number,
+        city: recipient.city,
+        state: recipient.state,
+        complement: recipient.complement || 'Sem complemento',
+      },
+    });
 
     return res.json(pack);
   }
