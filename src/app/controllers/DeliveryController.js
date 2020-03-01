@@ -1,7 +1,7 @@
 import Package from '../models/Package';
 import Recipient from '../models/Recipient';
 
-class DeliveriesControoller {
+class DeliveryController {
   async index(req, res) {
     const packages = await Package.findAll({
       where: {
@@ -30,4 +30,4 @@ class DeliveriesControoller {
     return res.json(packages);
   }
 }
-export default new DeliveriesControoller();
+export default new DeliveryController();
