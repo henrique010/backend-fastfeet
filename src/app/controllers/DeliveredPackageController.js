@@ -52,7 +52,6 @@ class DeliveryPackageController {
       return res.status(400).json({ error: 'Invalid fields' });
     }
 
-    console.log(`PACK_ID: ${req.params.pack_id}`);
     const pack = await Package.findByPk(req.params.pack_id);
 
     if (!pack) {
