@@ -15,6 +15,7 @@ class CancellationMail {
       subject: 'Cancelamento de entrega',
       template: 'cancellation',
       context: {
+        deliveryman: deliveryman.name,
         problem,
         date: format(parseISO(date), "'dia' dd 'de' MMMM', às' H:mm'h'", {
           locale: pt,

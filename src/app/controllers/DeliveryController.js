@@ -61,17 +61,17 @@ class DeliveryController {
 
     const pack = await Package.findByPk(deliveryProblem.delivery_id);
 
-    const canceledPack = await pack.update({
+    const cancelledPack = await pack.update({
       canceled_at: new Date(),
     });
 
-    const { createdAt, description, delivery } = deliveryProblem;
-    const { deliveryman, recipient } = delivery;
+    const { description, delivery } = deliveryProblem;
+    const { deliveryman, recipient, canceled_at } = delivery;
 
     await Queue.add(CancellatinMail.key, {
       problem: description,
-      date: createdAt,
-      pack: canceledPack,
+      date: canceled_at,
+      pack: cancelledPack,
       deliveryman,
       recipient,
     });
