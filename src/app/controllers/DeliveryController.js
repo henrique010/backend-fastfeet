@@ -3,6 +3,9 @@ import Recipient from '../models/Recipient';
 import Deliveryman from '../models/Deliveryman';
 import DeliveryProblem from '../models/DeliveryProblem';
 
+import Queue from '../../lib/Queue';
+import CancellatinMail from '../jobs/CancellationMail';
+
 class DeliveryController {
   async index(req, res) {
     const packages = await Package.findAll({
@@ -43,6 +46,10 @@ class DeliveryController {
               model: Deliveryman,
               as: 'deliveryman',
             },
+            {
+              model: Recipient,
+              as: 'recipient',
+            },
           ],
         },
       ],
@@ -58,7 +65,18 @@ class DeliveryController {
       canceled_at: new Date(),
     });
 
-    return res.json(canceledPack);
+    const { createdAt, description, delivery } = deliveryProblem;
+    const { deliveryman, recipient } = delivery;
+
+    await Queue.add(CancellatinMail.key, {
+      problem: description,
+      date: createdAt,
+      pack: canceledPack,
+      deliveryman,
+      recipient,
+    });
+
+    return res.json(deliveryProblem);
   }
 }
 export default new DeliveryController();
