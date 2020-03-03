@@ -21,10 +21,10 @@ const upload = multer(multerConfig);
 // rotas que não precisam de autenticação
 routes.post('/sessions', SessionController.store);
 
-routes.get('/deliveryman/:id/deliveries', DispatchController.index);
+routes.get('/deliveryman/:id/dispatches', DispatchController.index);
 
-routes.post('/delivered/:pack_id', DeliveryController.store);
-routes.get('/deliveryman/:id/delivered', DeliveryController.index);
+routes.post('/package/:pack_id/delivered', DeliveryController.store);
+routes.get('/deliveryman/:id/deliveries', DeliveryController.index);
 
 routes.post('/withdrawals/:pack_id', WithdrawalController.store);
 

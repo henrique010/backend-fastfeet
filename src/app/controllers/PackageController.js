@@ -17,7 +17,7 @@ class PackageController {
         'end_date',
         'createdAt',
       ],
-      order: ['createdAt'],
+      order: [['createdAt', 'DESC']],
       include: [
         {
           model: Recipient,
@@ -98,6 +98,10 @@ class PackageController {
     }
 
     const pack = await Package.findByPk(req.params.id);
+
+    if (!pack) {
+      return res.status(404).json({ error: 'Package not found' });
+    }
 
     const { recipient_id, deliveryman_id, signature_id } = req.body;
 
