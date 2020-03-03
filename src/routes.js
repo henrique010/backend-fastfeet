@@ -10,6 +10,7 @@ import DeliveryController from './app/controllers/DeliveryController';
 import DeliveredPackageController from './app/controllers/DeliveredPackageController';
 import WithdrawalController from './app/controllers/WithdrawalController';
 import DeliveryProblemController from './app/controllers/DeliveryProblemController';
+import ProblemPackageController from './app/controllers/ProblemPackageController';
 
 import Middleware from './app/middleware/auth';
 import multerConfig from './config/multer';
@@ -50,5 +51,7 @@ routes.delete('/packages/:id', PackageController.delete);
 routes.get('/delivery/:pack_id/problems', DeliveryProblemController.index);
 
 routes.delete('/problems/:pack_id/delivery-cancel', DeliveryController.delete);
+
+routes.get('/problems/packages', ProblemPackageController.index);
 
 export default routes;
