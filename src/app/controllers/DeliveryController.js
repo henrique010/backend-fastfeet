@@ -1,20 +1,23 @@
+import { Op } from 'sequelize';
+import * as Yup from 'yup';
 import Package from '../models/Package';
 import Recipient from '../models/Recipient';
-import Deliveryman from '../models/Deliveryman';
-import DeliveryProblem from '../models/DeliveryProblem';
-
-import Queue from '../../lib/Queue';
-import CancellatinMail from '../jobs/CancellationMail';
+import File from '../models/File';
 
 class DeliveryController {
   async index(req, res) {
     const packages = await Package.findAll({
       where: {
         deliveryman_id: req.params.id,
-        end_date: null,
         canceled_at: null,
+        start_date: {
+          [Op.ne]: null,
+        },
+        end_date: {
+          [Op.ne]: null,
+        },
       },
-      attributes: ['id', 'product', 'start_date', 'createdAt'],
+      attributes: ['id', 'product', 'start_date', 'end_date'],
       include: [
         {
           model: Recipient,
@@ -29,54 +32,40 @@ class DeliveryController {
             'cep',
           ],
         },
+        {
+          model: File,
+          as: 'signature',
+          attributes: ['path', 'url'],
+        },
       ],
     });
 
     return res.json(packages);
   }
 
-  async delete(req, res) {
-    const deliveryProblem = await DeliveryProblem.findByPk(req.params.pack_id, {
-      include: [
-        {
-          model: Package,
-          as: 'delivery',
-          include: [
-            {
-              model: Deliveryman,
-              as: 'deliveryman',
-            },
-            {
-              model: Recipient,
-              as: 'recipient',
-            },
-          ],
-        },
-      ],
+  async store(req, res) {
+    const schema = Yup.object().shape({
+      signature_id: Yup.number().required(),
     });
 
-    if (!deliveryProblem) {
-      return res.status(404).json({ error: 'Delivery problem not found' });
+    if (!(await schema.isValid(req.body))) {
+      return res.status(400).json({ error: 'Invalid fields' });
     }
 
-    const pack = await Package.findByPk(deliveryProblem.delivery_id);
+    const pack = await Package.findByPk(req.params.pack_id);
 
-    const cancelledPack = await pack.update({
-      canceled_at: new Date(),
+    if (!pack) {
+      return res.status(404).json({ error: 'Package not found' });
+    }
+
+    const { signature_id } = req.body;
+
+    const deliveredPack = await pack.update({
+      end_date: new Date(),
+      signature_id,
     });
 
-    const { description, delivery } = deliveryProblem;
-    const { deliveryman, recipient, canceled_at } = delivery;
-
-    await Queue.add(CancellatinMail.key, {
-      problem: description,
-      date: canceled_at,
-      pack: cancelledPack,
-      deliveryman,
-      recipient,
-    });
-
-    return res.json(deliveryProblem);
+    return res.json(deliveredPack);
   }
 }
 export default new DeliveryController();
